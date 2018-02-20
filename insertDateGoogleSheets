@@ -1,0 +1,29 @@
+// Add this function to the script editor in Google Sheets to automatically insert the date when you
+// update a sheet. It will only insert the date if the first column contains the string "Date" and
+// if there is no pre-existing date.
+
+function onEdit() {
+  var TIMEZONE = "GMT-5";
+  var TIMESTAMP_FORMAT="MM/dd/yyyy";
+  var TIMESTAMP_COLUMN_NAME = "Date";
+  
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var activeRange = SpreadsheetApp.getActiveRange();
+  
+  var curRow = activeRange.getRowIndex();
+  var curColumn = activeRange.getColumn();
+  
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  Logger.log(headers);
+  // Get indices and add 1 to start at 1
+  var timestampColumn = headers.indexOf(TIMESTAMP_COLUMN_NAME) + 1;
+  if (curColumn != timestampColumn && curRow > 1) {
+    var editedCell = sheet.getRange(curRow, curColumn);
+    var dateCell = sheet.getRange(curRow, timestampColumn);
+    if (editedCell.getValue() != "" && dateCell.getValue() == "") {
+      Logger.log("Updating date");
+      var date = Utilities.formatDate(new Date(), TIMEZONE, TIMESTAMP_FORMAT);
+      dateCell.setValue(date);
+    }
+  }
+}
